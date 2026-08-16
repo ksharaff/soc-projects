@@ -40,7 +40,8 @@ CloudoraSignIn_CL
 Found a pattern of several failed logins followed by a successful login at 03:12 AM from Lagos. `ResultType` 50126 = failure, `ResultType` 0 = success.
 
 ![Daniel's sign-in pattern]
-!Screenshot 2026-08-16 165952.png
+<img width="1908" height="978" alt="Screenshot 2026-08-16 165952" src="https://github.com/user-attachments/assets/0305d1a7-877d-409f-8f3e-45906bd86697" />
+
 
 **Impossible travel check:** Daniel signed in again from London just ~5 hours later. A flight from Lagos to London takes more than 6 hours — so this couldn't be him travelling.
 
@@ -51,7 +52,9 @@ CloudoraSignIn_CL
 | order by SignIns desc
 ```
 
-![Impossible travel](screenshots/step2-impossible-travel.png)
+![Impossible travel]
+<img width="1909" height="975" alt="Screenshot 2026-08-16 170314" src="https://github.com/user-attachments/assets/dab3c006-6138-445f-9c22-35dc9884616f" />
+
 
 **Baseline vs. anomaly:** Compared Daniel's activity to a normal traveling employee, Omar (based in Dubai). Omar's logins were daytime, single-attempt successes from a consistent device — normal travel behavior. Daniel's 3 AM burst of failures followed by a success from a brand-new device was a confirmed compromise, not travel.
 
@@ -62,7 +65,9 @@ CloudoraSignIn_CL
 | order by SignIns desc
 ```
 
-![Baseline comparison](screenshots/step2-baseline.png)
+![Baseline comparison]
+<img width="1908" height="973" alt="Screenshot 2026-08-16 170929" src="https://github.com/user-attachments/assets/6ff437d5-d17d-4ce4-abd0-26127ccc3b68" />
+
 
 ## Step 3 — Finding initial access
 
@@ -76,7 +81,9 @@ CloudoraSignIn_CL
 
 The attacker hit 20+ different accounts, trying only 1–2 passwords on each account to stay under lockout thresholds — classic **password spraying (MITRE T1110.003)**. Using `bin()` to bucket by day showed three consecutive nights of spraying before Daniel's password was finally cracked on night three.
 
-![Password spray pattern](screenshots/step3-spray.png)
+![Password spray pattern]
+<img width="1549" height="672" alt="Screenshot 2026-08-16 171956" src="https://github.com/user-attachments/assets/3d09d3b2-aeee-4d33-b2bc-7716af02ed58" />
+
 
 ## Step 4 — Hunting for persistence
 
@@ -92,7 +99,9 @@ CloudoraAudit_CL
 - **MFA backdoor:** 6 minutes after login, the attacker registered a new MFA device — a Pixel 6 authenticator app (**T1098.005**). This meant a password reset alone would not lock the attacker out.
 - **BEC staging:** an inbox rule was created to automatically hide (move + mark read) any email containing "finance" or "invoice" — a classic **Business Email Compromise** setup used to intercept financial communications and stage fraud.
 
-![Persistence found in audit logs](screenshots/step4-persistence.png)
+![Persistence found in audit logs]
+<img width="1547" height="636" alt="Screenshot 2026-08-16 172655" src="https://github.com/user-attachments/assets/37280134-f6b5-44e1-bfa4-ed56c72c7268" />
+
 
 ## Step 5 — Scoping the incident
 
@@ -116,8 +125,12 @@ CloudoraSignIn_CL
 
 Several failed attempts preceded a successful login at 03:52 AM. Her audit logs showed no attacker activity (no persistence set up), but credential reset was still required as a precaution.
 
-![Second victim scoping](screenshots/step5-scoping.png)
-![Priya's audit logs](screenshots/step5-audit.png)
+![Second victim scoping]
+<img width="1546" height="729" alt="Screenshot 2026-08-16 173122" src="https://github.com/user-attachments/assets/318214cd-9f69-41ca-b4cf-94cd13207152" />
+
+![Priya's audit logs]
+<img width="1543" height="860" alt="Screenshot 2026-08-16 201207" src="https://github.com/user-attachments/assets/9af98f66-e48b-4dae-8481-4b4a89660ccf" />
+
 
 ## Step 6 — Containment and remediation
 
@@ -139,9 +152,3 @@ Documented the full incident in a formal Incident Report, including:
 - An executive summary in plain English for the CEO, and a technical timeline for the IT team
 - Every timestamp normalized to UTC to avoid time-zone confusion
 - A full Indicators of Compromise (IOCs) list — attacker IPs and the malicious inbox rule name — so other analysts can use them for future detection
-
-## Key takeaways / what I'd say in an interview
-
-> I investigated an executive account takeover end-to-end. I traced the password spray to the initial access. I found MFA persistence and a BEC inbox rule the attacker had staged. I scoped a second compromised account and wrote the incident report. I can walk you through every decision I made.
-
-**On the Omar false positive:** Omar's Dubai sign-ins were assessed as legitimate travel, not compromise, based on: daytime login hours, 100% success rate with no preceding failures, and a consistent device fingerprint matching his normal London baseline — in contrast to Daniel's 3 AM failure-then-success pattern from a device never seen on the account before. Baseline comparison like this is what prevents both a missed detection *and* a false accusation.
