@@ -16,10 +16,7 @@ I set up a free Azure Data Explorer cluster and loaded two log sources:
 
 Verified the data loaded correctly:
 
-```kql
-CloudoraSignIn_CL
-| count
-```
+
 
 <img width="1543" height="732" alt="Screenshot 2026-08-16 190917" src="https://github.com/user-attachments/assets/a84ae1fd-d721-4678-9651-090f45df089f" />
 
@@ -29,13 +26,7 @@ CloudoraSignIn_CL
 
 **Checked Daniel's sign-ins on the day of the incident:**
 
-```kql
-CloudoraSignIn_CL
-| where UserPrincipalName == "daniel.reeve@cloudora.io"
-| where TimeGenerated between (datetime(2026-08-10) .. datetime(2026-08-11))
-| project TimeGenerated, AppDisplayName, IPAddress, City, Country, ResultType, ResultDescription
-| order by TimeGenerated asc
-```
+
 
 Found a pattern of several failed logins followed by a successful login at 03:12 AM from Lagos. `ResultType` 50126 = failure, `ResultType` 0 = success.
 
@@ -44,24 +35,14 @@ Found a pattern of several failed logins followed by a successful login at 03:12
 
 **Impossible travel check:** Daniel signed in again from London just ~5 hours later. A flight from Lagos to London takes more than 6 hours — so this couldn't be him travelling.
 
-```kql
-CloudoraSignIn_CL
-| where UserPrincipalName == "daniel.reeve@cloudora.io"
-| summarize SignIns=count(), FirstSeen=min(TimeGenerated), LastSeen=max(TimeGenerated) by Country, City, IPAddress
-| order by SignIns desc
-```
+
 
 <img width="1909" height="975" alt="Screenshot 2026-08-16 170314" src="https://github.com/user-attachments/assets/dab3c006-6138-445f-9c22-35dc9884616f" />
 
 
 **Baseline vs. anomaly:** Compared Daniel's activity to a normal traveling employee, Omar (based in Dubai). Omar's logins were daytime, single-attempt successes from a consistent device — normal travel behavior. Daniel's 3 AM burst of failures followed by a success from a brand-new device was a confirmed compromise, not travel.
 
-```kql
-CloudoraSignIn_CL
-| where UserPrincipalName == "omar.farah@cloudora.io"
-| summarize SignIns=count(), FirstSeen=min(TimeGenerated), LastSeen=max(TimeGenerated) by Country, City, IPAddress
-| order by SignIns desc
-```
+
 
 <img width="1908" height="973" alt="Screenshot 2026-08-16 170929" src="https://github.com/user-attachments/assets/6ff437d5-d17d-4ce4-abd0-26127ccc3b68" />
 
@@ -70,11 +51,7 @@ CloudoraSignIn_CL
 
 **Identifying the password spray:** searched for the Lagos IP ranges for high failure rates across multiple accounts.
 
-```kql
-CloudoraSignIn_CL
-| where IPAddress startswith "102.89."
-| summarize Attempts=count() by bin(TimeGenerated, 1d), ResultType
-```
+
 
 The attacker hit 20+ different accounts, trying only 1–2 passwords on each account to stay under lockout thresholds — classic **password spraying (MITRE T1110.003)**. Using `bin()` to bucket by day showed three consecutive nights of spraying before Daniel's password was finally cracked on night three.
 
@@ -85,12 +62,7 @@ The attacker hit 20+ different accounts, trying only 1–2 passwords on each acc
 
 Switched to the audit logs to see what the attacker did after gaining access:
 
-```kql
-CloudoraAudit_CL
-| where IPAddress startswith "102.89."
-| project TimeGenerated, ActivityDisplayName, TargetUser, Details
-| order by TimeGenerated asc
-```
+
 
 - **MFA backdoor:** 6 minutes after login, the attacker registered a new MFA device — a Pixel 6 authenticator app (**T1098.005**). This meant a password reset alone would not lock the attacker out.
 - **BEC staging:** an inbox rule was created to automatically hide (move + mark read) any email containing "finance" or "invoice" — a classic **Business Email Compromise** setup used to intercept financial communications and stage fraud.
@@ -102,27 +74,18 @@ CloudoraAudit_CL
 
 Queried for any other successful logins from the attacker's Lagos IPs to check for additional victims:
 
-```kql
-CloudoraSignIn_CL
-| where IPAddress startswith "102.89." and ResultType == "0"
-| project UserPrincipalName, IPAddress, TimeGenerated
-| order by TimeGenerated asc
-```
+<img width="1546" height="729" alt="Screenshot 2026-08-16 173122" src="https://github.com/user-attachments/assets/318214cd-9f69-41ca-b4cf-94cd13207152" />
+
 
 Found a second victim — Priya Nair — accessed ~30 minutes after Daniel. Investigated her sign-in and audit trail separately:
 
-```kql
-CloudoraSignIn_CL
-| where UserPrincipalName == "priya.nair@cloudora.io"
-| project TimeGenerated, AppDisplayName, City, Country, ResultType, ResultDescription, IPAddress
-| order by TimeGenerated asc
-```
+
+<img width="1543" height="860" alt="Screenshot 2026-08-16 201207" src="https://github.com/user-attachments/assets/9af98f66-e48b-4dae-8481-4b4a89660ccf" />
 
 Several failed attempts preceded a successful login at 03:52 AM. Her audit logs showed no attacker activity (no persistence set up), but credential reset was still required as a precaution.
 
-<img width="1546" height="729" alt="Screenshot 2026-08-16 173122" src="https://github.com/user-attachments/assets/318214cd-9f69-41ca-b4cf-94cd13207152" />
 
-<img width="1543" height="860" alt="Screenshot 2026-08-16 201207" src="https://github.com/user-attachments/assets/9af98f66-e48b-4dae-8481-4b4a89660ccf" />
+
 
 
 ## Step 6 — Containment and remediation
