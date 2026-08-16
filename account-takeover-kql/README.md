@@ -21,8 +21,8 @@ CloudoraSignIn_CL
 | count
 ```
 
-![Verifying data load]
-<img width="1908" height="978" alt="Screenshot 2026-08-16 165952" src="https://github.com/user-attachments/assets/2afd4994-5a1d-4408-9f15-c8e083e86f2d" />
+<img width="1543" height="732" alt="Screenshot 2026-08-16 190917" src="https://github.com/user-attachments/assets/a84ae1fd-d721-4678-9651-090f45df089f" />
+
 
 
 ## Step 2 — Confirming the compromise
@@ -39,7 +39,6 @@ CloudoraSignIn_CL
 
 Found a pattern of several failed logins followed by a successful login at 03:12 AM from Lagos. `ResultType` 50126 = failure, `ResultType` 0 = success.
 
-![Daniel's sign-in pattern]
 <img width="1908" height="978" alt="Screenshot 2026-08-16 165952" src="https://github.com/user-attachments/assets/0305d1a7-877d-409f-8f3e-45906bd86697" />
 
 
@@ -52,7 +51,6 @@ CloudoraSignIn_CL
 | order by SignIns desc
 ```
 
-![Impossible travel]
 <img width="1909" height="975" alt="Screenshot 2026-08-16 170314" src="https://github.com/user-attachments/assets/dab3c006-6138-445f-9c22-35dc9884616f" />
 
 
@@ -65,7 +63,6 @@ CloudoraSignIn_CL
 | order by SignIns desc
 ```
 
-![Baseline comparison]
 <img width="1908" height="973" alt="Screenshot 2026-08-16 170929" src="https://github.com/user-attachments/assets/6ff437d5-d17d-4ce4-abd0-26127ccc3b68" />
 
 
@@ -81,7 +78,6 @@ CloudoraSignIn_CL
 
 The attacker hit 20+ different accounts, trying only 1–2 passwords on each account to stay under lockout thresholds — classic **password spraying (MITRE T1110.003)**. Using `bin()` to bucket by day showed three consecutive nights of spraying before Daniel's password was finally cracked on night three.
 
-![Password spray pattern]
 <img width="1549" height="672" alt="Screenshot 2026-08-16 171956" src="https://github.com/user-attachments/assets/3d09d3b2-aeee-4d33-b2bc-7716af02ed58" />
 
 
@@ -99,7 +95,6 @@ CloudoraAudit_CL
 - **MFA backdoor:** 6 minutes after login, the attacker registered a new MFA device — a Pixel 6 authenticator app (**T1098.005**). This meant a password reset alone would not lock the attacker out.
 - **BEC staging:** an inbox rule was created to automatically hide (move + mark read) any email containing "finance" or "invoice" — a classic **Business Email Compromise** setup used to intercept financial communications and stage fraud.
 
-![Persistence found in audit logs]
 <img width="1547" height="636" alt="Screenshot 2026-08-16 172655" src="https://github.com/user-attachments/assets/37280134-f6b5-44e1-bfa4-ed56c72c7268" />
 
 
@@ -125,10 +120,8 @@ CloudoraSignIn_CL
 
 Several failed attempts preceded a successful login at 03:52 AM. Her audit logs showed no attacker activity (no persistence set up), but credential reset was still required as a precaution.
 
-![Second victim scoping]
 <img width="1546" height="729" alt="Screenshot 2026-08-16 173122" src="https://github.com/user-attachments/assets/318214cd-9f69-41ca-b4cf-94cd13207152" />
 
-![Priya's audit logs]
 <img width="1543" height="860" alt="Screenshot 2026-08-16 201207" src="https://github.com/user-attachments/assets/9af98f66-e48b-4dae-8481-4b4a89660ccf" />
 
 
