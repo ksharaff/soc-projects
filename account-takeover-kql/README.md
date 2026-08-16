@@ -21,7 +21,9 @@ CloudoraSignIn_CL
 | count
 ```
 
-![Verifying data load](screenshots/step1-count.png)
+![Verifying data load]
+<img width="1908" height="978" alt="Screenshot 2026-08-16 165952" src="https://github.com/user-attachments/assets/2afd4994-5a1d-4408-9f15-c8e083e86f2d" />
+
 
 ## Step 2 — Confirming the compromise
 
@@ -37,7 +39,8 @@ CloudoraSignIn_CL
 
 Found a pattern of several failed logins followed by a successful login at 03:12 AM from Lagos. `ResultType` 50126 = failure, `ResultType` 0 = success.
 
-![Daniel's sign-in pattern](screenshots/step2-signins.png)
+![Daniel's sign-in pattern]
+!Screenshot 2026-08-16 165952.png
 
 **Impossible travel check:** Daniel signed in again from London just ~5 hours later. A flight from Lagos to London takes more than 6 hours — so this couldn't be him travelling.
 
