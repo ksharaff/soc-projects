@@ -21,7 +21,7 @@ Three "witnesses" were needed to tell the full story:
 1. **The emails** — what the attacker actually sent
 2. **Message trace logs** — who received it and who clicked
 3. **Sign-in logs** — whose credentials were actually used
-
+---
 ### 2. Email Header & Authentication Analysis
 
 I opened the suspicious emails in a **plain text editor**—not a mail client—to prevent loading tracking pixels that could alert the attacker.
@@ -32,16 +32,19 @@ I opened the suspicious emails in a **plain text editor**—not a mail client—
 <img width="878" height="386" alt="Screenshot 2026-08-19 192920" src="https://github.com/user-attachments/assets/01cb6c89-3477-4fc1-b071-e9df4c16ce71" />
 
 ---
+
 The Lookalike Trap (Variant B): This was a sneakier version that actually passed authentication. I learned that a valid seal only proves the domain is real, not that the sender is trustworthy; the attacker simply registered their own lookalike domain and "honestly" signed the email as themselves.
 <img width="857" height="405" alt="Screenshot 2026-08-19 193020" src="https://github.com/user-attachments/assets/7405c7c0-8062-4a81-8a1f-2c6f000ca2ab" />
 
+---
 
 The False Positive: I also analyzed a marketing newsletter. It passed all checks and was aligned with our brand and Mailchimp (mcsv.net), proving it was legitimate.
 <img width="870" height="388" alt="Screenshot 2026-08-19 193121" src="https://github.com/user-attachments/assets/745ab84e-922e-4275-a998-f52bc8a401fd" />
 
 
-
 **Why the newsletter is clean and Variant B isn't, despite both passing authentication:** the newsletter passes SPF/DKIM/DMARC *for `cloudora.io` itself*, sent via Mailchimp as an authorized third party with DKIM aligned to the real domain. Variant B also passes all three checks, but only because the attacker registered their own look-alike domain and honestly signed it as themselves — passing authentication proves the domain in the `From` header is real, not that the sender is trustworthy, and that domain was never Cloudora's.
+
+---
 
 ### 3. Investigation Lab Setup
 
@@ -49,6 +52,8 @@ I used **Azure Data Explorer (ADX)** to query the logs using **KQL**.
 
 1. **Data Ingestion:** I created two tables: CloudoraMsgTrace_CL and CloudoraSignIn_CL.
 2. **Data Discipline:** I made sure to set columns like **`ResultType`** to **strings** so my queries wouldn't break, and I ran a **`count`** to verify I had all **67 rows** of trace data.
+
+---
 
 ### 4. Scoping the Campaign (KQL)
 
@@ -76,6 +81,7 @@ I noticed two things:
 Lastly, I wrote a query which investigates deeper into this unusual IP, summarizing all success sign-ins for that IP. After I ran the query, two names showed up. These two accounts were both signed-in from the same IP, country, and date with approximately only 3 hours apart.
 <img width="1542" height="602" alt="Screenshot 2026-08-19 181524" src="https://github.com/user-attachments/assets/a5c2efd0-b248-4e56-be21-37bd3162ef2e" />
 
+---
 
 ### 5. Containment & Remediation
 
@@ -87,6 +93,8 @@ Followed the NIST IR model, order-of-operations matters here:
 4. **Block infrastructure** — sending IPs (`198.18.44.10`, `198.18.44.23`, `198.18.51.7`), the login IP (`198.18.7.200`), and `cloudora-hr-portal.example` (+ subdomains)
 5. **Purge** the delivered phish from every mailbox
 6. **Verify** — re-run the sign-in pivot and confirm zero activity from `198.18.7.200` after containment
+
+---
 
 ### 6: Writing an email to the staff who got sent the phishing email
 
@@ -118,6 +126,8 @@ Followed the NIST IR model, order-of-operations matters here:
 > Thanks,
 > Cloudora Security Operations
 
+---
+
 ### 7. Detection Rule
 
 The signal that would have caught this automatically: **a successful sign-in from a country the user doesn't normally use, within a few hours of that same user clicking a phishing link.** That's exactly what caught Freya and Ryan.
@@ -134,11 +144,13 @@ A 6-hour window comfortably covers both real compromises (1h47m and 4h17m after 
 - Attacker reached **SharePoint Online** in addition to mailbox access on one account
 - One marketing newsletter correctly cleared as a **false positive** with documented evidence, distinguishing it from the auth-passing Variant B phish
 
-
+---
 
 ## Disclaimer
 
 This is a **simulated client engagement**, built on the MyFirstHack "Cloudora" training dataset (a `myfirstcyberjob` community resource). Cloudora, all employees, IP addresses, and domains are fictional. The look-alike domain uses the reserved `.example` TLD, which can never resolve to a real site. Completed as a self-directed portfolio exercise, not as employment.
+
+---
 
 ## Author
 
