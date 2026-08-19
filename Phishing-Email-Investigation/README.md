@@ -31,7 +31,7 @@ I opened the suspicious emails in a **plain text editor**—not a mail client—
 
 <img width="878" height="386" alt="Screenshot 2026-08-19 192920" src="https://github.com/user-attachments/assets/01cb6c89-3477-4fc1-b071-e9df4c16ce71" />
 
-
+---
 The Lookalike Trap (Variant B): This was a sneakier version that actually passed authentication. I learned that a valid seal only proves the domain is real, not that the sender is trustworthy; the attacker simply registered their own lookalike domain and "honestly" signed the email as themselves.
 <img width="857" height="405" alt="Screenshot 2026-08-19 193020" src="https://github.com/user-attachments/assets/7405c7c0-8062-4a81-8a1f-2c6f000ca2ab" />
 
